@@ -1,0 +1,55 @@
+The Execute folder is to run all experiments and generate data and analyze it.
+Other than the requirements for running the TL2 STM, which is a X86 machine,
+there are no requirements for running the software.
+
+Steps for running the experiment:
+
+1. Goto Execute folder
+2. All expts can be executed using the script exec.sh
+3. For handy about do a tail -15 on exec.sh to know about inputs for the script
+4.  The script can be run as:
+
+    ./exec.sh numthreads numruns option(lookabove) freq directoryName(RunName) size-of-data(optional)
+    where,
+    different options are:
+     model  - for using the model in guided execution (gstm)
+     ND_mcmc - for generating the Non-deterministic data (secondary data) for guided stm
+     ND_only - for generating the non-deterministic data for default stm
+     mcmc_data - for generating the state model
+     default or orig - for default stm run
+
+    different sizes-of-data are:
+     large
+     medium
+     small
+
+5. By default, the script uses medium size for training (generating the model (option= mcmc_data)) 
+   and small for testing
+6. However, the sizes can be varied as required by providing input to the size-of-data input arg
+7. Within the script the benches variable declares a list of benches. But some benchmarks like intruder
+   fail on large sized input as mentioned in our paper and that will thwart getting numbers for other
+   as well. To run individual benchmark or remove few from list, edit exec.sh file to change benches
+   variable as below.
+
+    #benches=( genome intruder kmeans labyrinth ssca2 vacation yada )
+    benches=( genome kmeans labyrinth ssca2 vacation yada )
+    #benches=( genome )
+
+8. The final runtime numbers can be found in the file AvgSummary_"directoryName"_"option""freq"_"threads"_"num_runs"
+    This file is necessary for final variance and runtime numbers for model and orig runs. For mcmc_data runs (for 
+    generating model) this file is not important, although it is generated. A directory is created for each new bench
+    -mark and mcmc_data option will generate the model, which is called state_data.
+
+9. The script var_Percentagediff.py can be used to get percentage change in variance.
+    Usage: ./var_Percentagediff.py <baseline_file> <gstm_technique_file>
+
+10. Similarly, the runtime numbers can be obtained using ./avg_Percentagediff.py with same semantics.
+
+11. The non-determinism numbers can be obtained by running the exec script with ND_mcmc option for guided stm and ND_only
+ option for default stm. Each command will output a similar file as above
+ (AvgSummary_"directoryName"_"option""freq"_"threads"_"num_runs"). However, the file in this case will have the benchmark
+ name followed by number of states seen ( Non-determinism is defined as number of states seen in the paper), followed by
+ the abort distribution.  The abort distribution is in the format number-of-abort:frequency. For example,
+ 0:700 implies that 700 times there were zero aborts and so on.
+        
+   
